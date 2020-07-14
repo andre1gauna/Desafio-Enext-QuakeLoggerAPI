@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QuakeLogger.Data\QuakeLogger.Data.csproj" />
+    <ProjectReference Include="..\QuakeLogger.Domain\QuakeLogger.Domain.csproj" />
   </ItemGroup>
 
 </Project>
