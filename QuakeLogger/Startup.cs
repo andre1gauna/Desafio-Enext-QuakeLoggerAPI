@@ -10,7 +10,7 @@ using QuakeLogger.Data.Context;
 using QuakeLogger.Data.Repositories;
 using QuakeLogger.Data.Seeds;
 using QuakeLogger.Domain.Interfaces.Repositories;
-
+using QuakeLogger.Services;
 
 namespace QuakeLogger
 {
@@ -35,6 +35,7 @@ namespace QuakeLogger
 
             services.AddScoped<GameSeed>(); // alimenta o banco com dados de teste
             services.AddScoped<PlayerSeed>(); // alimenta o banco com dados de teste
+            services.AddScoped<Parser>(); // Faz a leitura do arquivo .txt
 
             services.AddAutoMapper(typeof(AutoMapperConfig)); // Adicionar o serviço do AutoMapper
 
@@ -53,13 +54,14 @@ namespace QuakeLogger
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, GameSeed gameSeed, PlayerSeed playerSeed)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, GameSeed gameSeed, PlayerSeed playerSeed, Parser parser)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                playerSeed.Populate();
-                gameSeed.Populate();
+                //playerSeed.Populate();
+                //gameSeed.Populate();
+                parser.Reader(@"C:\Users\andre\source\repos\QuakeLoggerAPI\raw.txt");
             }
 
             else

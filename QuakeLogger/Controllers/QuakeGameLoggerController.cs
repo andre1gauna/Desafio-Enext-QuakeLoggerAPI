@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QuakeLogger.API.ViewModels;
@@ -25,7 +26,7 @@ namespace QuakeLogger.Controllers
             _mapper = mapper;
         }
 
-        //api/QuakeGameLogger/{id}
+        //api/QuakeGameLogger/{id}       
         [HttpGet("{id}")]
         public ActionResult<GameViewModel<PlayerViewModel>> GetById(int id)
         {                           

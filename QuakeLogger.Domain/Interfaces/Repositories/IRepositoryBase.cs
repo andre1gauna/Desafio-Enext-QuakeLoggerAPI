@@ -7,6 +7,7 @@ namespace QuakeLogger.Domain.Interfaces.Repositories
 {
     public interface IRepositoryBase<T> where T : class, IEntity
     {
+        public int Add(T entity);
         public T FindById(int id);        
 
         public void Remove(int id);

@@ -11,9 +11,9 @@ namespace QuakeLogger.Data.Context.Maps
 
             builder.HasKey(x => x.Id);
 
-            //builder.HasOne(x => x.Game)
-            //    .WithMany(x => x.Players)
-            //    .HasForeignKey(x => x.GameId);
+            builder.HasOne(x => x.Game)
+                .WithMany(x => x.Players)
+                .HasForeignKey(x => x.GameId);
 
         }
     }

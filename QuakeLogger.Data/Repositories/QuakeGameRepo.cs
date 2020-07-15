@@ -18,6 +18,13 @@ namespace QuakeLogger.Data.Repositories
             _context = context;
         }
 
+        public int Add(Game game)
+        {
+            _context.Games.Add(game);
+            _context.SaveChanges();
+
+            return game.Id;
+        }
         public Game FindById(int id)
         {
             return _context.Games

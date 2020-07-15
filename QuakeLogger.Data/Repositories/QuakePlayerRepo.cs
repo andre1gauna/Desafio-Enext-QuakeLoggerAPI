@@ -16,14 +16,33 @@ namespace QuakeLogger.Data.Repositories
         public QuakePlayerRepo(QuakeLoggerContext context)
         {
             _context = context;
-        }       
+        }
+        
+        public int Add(Player player)
+        {
+            _context.Players.Add(player);
+            _context.SaveChanges();
 
+            return player.Id;
+        }
+
+        public List<Player> GetAll()
+        {
+            return _context.Players.ToList();
+        }
         public Player FindById(int id)
         {
             return _context.Players
                 .Where(i => i.Id == id)
                 .FirstOrDefault();
-        }       
+        }
+
+        public Player FindByName(string name)
+        {
+            return _context.Players
+                .Where(i => i.Name == name)
+                .FirstOrDefault();
+        }
 
         public void Remove(int id)
         {
