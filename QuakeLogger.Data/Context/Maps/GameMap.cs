@@ -9,10 +9,7 @@ namespace QuakeLogger.Data.Context.Maps
         public void Configure(EntityTypeBuilder<Game> builder)
         {
 
-            builder.HasKey(x => x.Id);
-
-            builder.HasMany(x => x.Players)
-                .WithOne(x => x.Game);
+            builder.HasKey(x => x.Id);            
 
         }
     }

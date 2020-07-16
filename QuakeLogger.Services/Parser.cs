@@ -34,38 +34,44 @@ namespace QuakeLogger.Services
 
         private string FindKiller(string[] items)
         {
-            string[] killer = new string[items.Length];
+            string killer = "";
             int index = items.IndexOf("killed");
             index--;
             Regex reg = new Regex(@"\d:");
+            
             while (!reg.IsMatch(items[index]))
             {
-                killer.Append(items[index]);
-                index--;
+                killer += " " + items[index];
+                index--;                
             }
-
-            return killer.ToString().Trim();
+            
+            killer = ReverseString(killer);
+            //Console.WriteLine(killer);
+            return killer;
         }
 
         private string FindKilled(string[] items)
         {
-            string[] killed = new string[items.Length];
+            string killed="";
             int index = items.IndexOf("killed");
-            index++;
+            index++;          
             while (items[index] != "by")
             {
-                killed.Append(items[index]);
+                killed += items[index] + " ";
                 index++;
             }
-
-            killed.Reverse();
-            return killed.ToString().Trim();
+            
+            //Console.WriteLine(killed);
+            return killed.Trim();
         }
 
-        private void AddPlayer(string player)
+        private void AddPlayer(string player, string killerOrKilled)
         {
             if (_repoP.FindByName(player) == null)
-                _repoP.Add(new Player { Name = player});          
+            {
+                _repoP.Add(new Player { Name = player });
+                CheckKill(player, killerOrKilled);
+            }
 
         }
         
@@ -80,30 +86,52 @@ namespace QuakeLogger.Services
 
         private void CreateGame()
         {
-            Game game = new Game();
-            _repoP.GetAll().Where(x => x.GameId == 0).Select(x => x.GameId = game.Id);
-            game.Players = _repoP.GetAll().Where(i => i.GameId == game.Id);
-            _repoG.Add(game);
+            int actualGameId = _repoG.Add(new Game());            
+            var players = _repoP.GetAll().Where(x => x.GameId == 0);            
+            if(actualGameId==2)
+            {
+
+            }
+            foreach(Player player in players)
+            {
+                player.GamePlayers.Ga = _repoG.FindById(actualGameId);
+                player.GameId = actualGameId;
+                Console.WriteLine(player.GameId);
+                _repoP.Update(player);
+            }
+
+            _repoG.FindById(actualGameId).Players = _repoP.GetAll().Where(x => x.GameId == actualGameId);            
         }
 
-        private void LineChecker(string[] items)
+        private void LineChecker(string[] line)
         {
             string killer;
             string killed;
 
-            if (items.Contains("Kill:"))
+            if (line.Contains("Kill:"))
             {
-                killer = FindKiller(items);
-                killed = FindKilled(items);
-                AddPlayer(killer);
-                AddPlayer(killed);
+                killer = FindKiller(line);
+                killed = FindKilled(line);
+                AddPlayer(killer, "killer");
+                AddPlayer(killed, "killed");
                 CheckKill(killer, "killer");
                 CheckKill(killed, "killed");
             }
-            else if (items.Contains("ShutdownGame:"))
+            else if (line.Contains("ShutdownGame:"))
             {
                 CreateGame();
             }
+        }
+
+        private string ReverseString(string toBeReversed)
+        {
+            string result = "";
+            string[] intermediateString = toBeReversed.Split(" ");
+            for (int i = intermediateString.Length; i != 0; i--)
+            {
+                result += " " + intermediateString[i - 1];
+            }
+            return result.Trim();
         }
     }
 }

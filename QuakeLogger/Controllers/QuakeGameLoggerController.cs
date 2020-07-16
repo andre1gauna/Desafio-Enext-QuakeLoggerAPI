@@ -18,11 +18,13 @@ namespace QuakeLogger.Controllers
     [ApiController]
     public class QuakeGameLoggerController : ControllerBase
     {
-        private readonly IQuakeGameRepo _repo;
+        private readonly IQuakeGameRepo _repoG;
+        private readonly IQuakePlayerRepo _repoP;
         private readonly IMapper _mapper;
-        public QuakeGameLoggerController(IQuakeGameRepo repository, IMapper mapper)
+        public QuakeGameLoggerController(IQuakeGameRepo repositoryG, IQuakePlayerRepo repositoryP, IMapper mapper)
         {
-            _repo = repository;
+            _repoG = repositoryG;
+            _repoP = repositoryP;
             _mapper = mapper;
         }
 
@@ -30,14 +32,25 @@ namespace QuakeLogger.Controllers
         [HttpGet("{id}")]
         public ActionResult<GameViewModel<PlayerViewModel>> GetById(int id)
         {                           
-            var result = _mapper.Map<GameViewModel<PlayerViewModel>>(_repo.FindById(id));
+            var result = _mapper.Map<GameViewModel<PlayerViewModel>>(_repoG.FindById(id));
 
             if (result is null)
                 return NotFound();
 
             return Ok(result);
         }
-             
+
+        [HttpGet]
+        public ActionResult<List<PlayerViewModel>> GetPlayers()
+        {
+            var result = _mapper.Map<List<PlayerViewModel>>(_repoP.GetAll());
+
+            if (result is null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
 
     }
 }

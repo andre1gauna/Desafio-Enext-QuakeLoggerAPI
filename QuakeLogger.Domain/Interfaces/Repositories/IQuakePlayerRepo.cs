@@ -9,5 +9,6 @@ namespace QuakeLogger.Domain.Interfaces.Repositories
     {
         public Player FindByName(string name);
         public List<Player> GetAll();
+        public void Update(Player player);
     }
 }

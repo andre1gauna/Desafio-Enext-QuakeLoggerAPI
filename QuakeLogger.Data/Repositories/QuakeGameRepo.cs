@@ -28,8 +28,7 @@ namespace QuakeLogger.Data.Repositories
         public Game FindById(int id)
         {
             return _context.Games
-                .Where(i => i.Id == id)
-                .Include(x => x.Players)
+                .Where(i => i.Id == id)                
                 .FirstOrDefault();
         }        
 

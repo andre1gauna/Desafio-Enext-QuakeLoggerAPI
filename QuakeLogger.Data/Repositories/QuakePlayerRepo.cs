@@ -35,13 +35,19 @@ namespace QuakeLogger.Data.Repositories
             return _context.Players
                 .Where(i => i.Id == id)
                 .FirstOrDefault();
-        }
+        }        
 
         public Player FindByName(string name)
         {
             return _context.Players
                 .Where(i => i.Name == name)
                 .FirstOrDefault();
+        }
+
+        public void Update(Player player)
+        {
+            _context.Players.Update(player);
+            _context.SaveChanges();
         }
 
         public void Remove(int id)
