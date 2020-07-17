@@ -7,5 +7,7 @@ namespace QuakeLogger.Domain.Interfaces.Repositories
 {
     public interface IQuakeGameRepo : IRepositoryBase<Game>
     {
+        public void AddPlayer(Player player, int gameId);
+        
     }
 }

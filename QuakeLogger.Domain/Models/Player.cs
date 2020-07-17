@@ -7,8 +7,7 @@ namespace QuakeLogger.Models
     public class Player : IEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public int Kills { get; set; }       
-        public IEnumerable<GamePlayer> GamePlayers { get; set; }
+        public string Name { get; set; }               
+        public ICollection<GamePlayer> PlayerGames { get; set; }
     }
 }

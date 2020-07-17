@@ -19,11 +19,15 @@ namespace QuakeLogger.AutoMapper
 
         public AutoMapperConfig()
         {
-            CreateMap<Player, PlayerViewModel>().ReverseMap();
+
+            CreateMap<Player, PlayerViewModel>().ReverseMap();              
             CreateMap<Game, GameViewModel<PlayerViewModel>>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Players, opt => opt.MapFrom(src => src.GamePlayers.Where(i => i.GameId == src.Id).Select(p => p.Player)))
-                .ForMember(dest => dest.TotalKills, opt => opt.MapFrom(src => src.TotalKills));
+                .ForMember(dest => dest.TotalKills, opt => opt.MapFrom(src => src.GamePlayers
+                                                                                 .Where(i => i.GameId==src.Id)
+                                                                                 .Select(x => x.Kills)
+                                                                                 .Sum()));
                 
         }
     }

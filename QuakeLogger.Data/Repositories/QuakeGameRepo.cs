@@ -31,6 +31,19 @@ namespace QuakeLogger.Data.Repositories
                 .Where(i => i.Id == id)                
                 .FirstOrDefault();
         }        
+        public void AddPlayer(Player player, int gameId)
+        {
+            Game game = FindById(gameId);
+            game.GamePlayers.Where(id => id.GameId == gameId).Select(p => p.Player = player);
+            _context.Games.Update(game);
+            _context.SaveChanges();
+        }
+
+        public void Update(Game game)
+        {
+            _context.Games.Update(game);
+            _context.SaveChanges();
+        }
 
         public void Remove(int id)
         {

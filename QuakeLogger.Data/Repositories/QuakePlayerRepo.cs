@@ -1,5 +1,6 @@
 ﻿using QuakeLogger.Data.Context;
 using QuakeLogger.Domain.Interfaces.Repositories;
+using QuakeLogger.Domain.Models;
 using QuakeLogger.Models;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,12 @@ namespace QuakeLogger.Data.Repositories
                 .Where(i => i.Name == name)
                 .FirstOrDefault();
         }
-
+        public IQueryable<GamePlayer> FindByGameId(int gameId)
+        {
+            return _context
+                .GamePlayers
+                .Where(i => i.GameId == gameId);
+        }
         public void Update(Player player)
         {
             _context.Players.Update(player);

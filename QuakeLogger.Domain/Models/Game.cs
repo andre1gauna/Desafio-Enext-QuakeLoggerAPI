@@ -8,7 +8,7 @@ namespace QuakeLogger.Models
     {
         public int Id { get; set; }
         public int TotalKills { get; set; }
-        public IEnumerable<GamePlayer> GamePlayers { get; set; }
+        public ICollection<GamePlayer> GamePlayers { get; set; }
 
 
     }
