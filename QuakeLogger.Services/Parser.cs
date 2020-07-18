@@ -33,7 +33,20 @@ namespace QuakeLogger.Services
                 LineChecker(items);
             }
         }
-
+        private string FindKilled(string[] items)
+        {
+            string killed = "";
+            int index = items.IndexOf("killed");
+            index++;
+            
+            while ((items[index])!="by")
+            {
+                killed += items[index]+ " ";
+                index++;
+            }
+            
+            return killed.Trim();
+        }
         private string FindKiller(string[] items)
         {
             string killer = "";
@@ -43,7 +56,7 @@ namespace QuakeLogger.Services
 
             while (!reg.IsMatch(items[index]))
             {
-                killer += " " + items[index];
+                killer += items[index] + " ";
                 index--;
             }
 
@@ -51,83 +64,60 @@ namespace QuakeLogger.Services
             return killer;
         }
 
-        private string FindKilled(string[] items)
+        private void AddPlayer(string player, bool isKiller)
         {
-            string killed = "";
-            int index = items.IndexOf("killed");
-            index++;
-            while (items[index] != "by")
-            {
-                killed += items[index] + " ";
-                index++;
-            }
-            return killed.Trim();
-        }
+            int kill = 0;
+            if (isKiller)
+                kill = 1;
 
-        private void AddPlayerAndCheckKill(string player, string killerOrKilled)
-        {
-            if (_repoP.FindByName(player) == null)
-            {
-                var createPlayer = new Player { Name = player };
-                createPlayer.PlayerGames = new List<GamePlayer>
+            Player createPlayer = new Player { Name = player };
+            createPlayer.PlayerGames = new List<GamePlayer>
                 { new GamePlayer  {Player = createPlayer,
                                   PlayerId = createPlayer.Id,
                                   Game = _repoG.FindById(actualGameId),
-                                  GameId= actualGameId
+                                  GameId= actualGameId,
+                                  Kills=kill                                  
                                   }
-
                 };
-                _repoP.Update(createPlayer);
-                CheckKill(player, killerOrKilled);
-            }
-            else if (!HasGame(player))
-            {
-                var playerToBeUpdated = _repoP.FindByName(player);
 
-                playerToBeUpdated.PlayerGames.Add(
-                    new GamePlayer
-                    {
-                        Player = playerToBeUpdated,
-                        PlayerId = playerToBeUpdated.Id,
-                        Game = _repoG.FindById(actualGameId),
-                        GameId = actualGameId
+                _repoP.Update(createPlayer);                          
+            
+        }
+        private void AddPlayerTogame(string player, bool isKiller)
+        {            
+            Player playerToBeUpdated = _repoP.FindByName(player);
+            int kill = 0;
+            if (isKiller)
+                kill = 1;
 
-                    });
-                _repoP.Update(playerToBeUpdated);
-                CheckKill(player, killerOrKilled);
-            }            
-            else
-                CheckKill(player, killerOrKilled);
+            playerToBeUpdated.PlayerGames.Add(
+                new GamePlayer
+                {
+                    Player = playerToBeUpdated,
+                    PlayerId = playerToBeUpdated.Id,
+                    Game = _repoG.FindById(actualGameId),
+                    GameId = actualGameId,
+                    Kills = kill
+                });
+
+                _repoP.Update(playerToBeUpdated);                            
         }
 
-        private void CheckKill(string player, string killerOrKilled)
+        private void AddKill(string player)
         {
-            if (killerOrKilled == "killer")
-            {
-                var playerToBeUpdated = _repoP.FindByName(player);
+                Player playerToBeUpdated = _repoP.FindByName(player);
                 playerToBeUpdated.PlayerGames
                        .Where(i => i.GameId == actualGameId)
                        .FirstOrDefault().Kills++;
-
-                _repoP.Update(playerToBeUpdated);
-
-            }
-
-            else if (killerOrKilled == "killed")
-            {
-                var playerToBeUpdated = _repoP.FindByName(player);
-                playerToBeUpdated.PlayerGames
-                       .Where(i => i.GameId == actualGameId)
-                       .FirstOrDefault().Kills--;
-                _repoP.Update(playerToBeUpdated);
-            }
+                _repoP.Update(playerToBeUpdated);           
+            
         }       
 
         private void LineChecker(string[] line)
         {
             string killer;
             string killed;
-            int kills=0;
+
             if (line.Contains("InitGame:"))
             {
                 CreateGame();
@@ -137,32 +127,47 @@ namespace QuakeLogger.Services
             {
                 killer = FindKiller(line);
                 killed = FindKilled(line);
-                AddPlayerAndCheckKill(killer, "killer");
-                AddPlayerAndCheckKill(killed, "killed");
+
+                if (_repoP.FindByName(killer) == null)
+                {
+                    AddPlayer(killer, true);                    
+                }
+                else if (!HasGame(killer))
+                    AddPlayerTogame(killer, true);
+
+                else
+                    AddKill(killer);
+
+                if (_repoP.FindByName(killed) == null)
+                {                    
+                    AddPlayer(killed, false);
+                }
+                else if (!HasGame(killed))
+                    AddPlayerTogame(killed, false);               
+
             }
+
             else if (line.Contains("ShutdownGame:"))
             {
                 Game gameTobeClosed =_repoG.FindById(actualGameId);                
-                var ar = _repoP.FindByGameId(actualGameId);
-                ICollection<GamePlayer> teste = new List<GamePlayer>();
-                foreach ( var a in ar)
-                {
-                    teste.Add(a); 
-                }
-                if (actualGameId ==7)
-                {
-                    int acd;
-
-                }
-                gameTobeClosed.GamePlayers = teste;
-                foreach(int kill in gameTobeClosed.GamePlayers.Select(x => x.Kills))
-                {
-                    kills += kill;
-                }
-                gameTobeClosed.TotalKills = kills;
+                IQueryable<GamePlayer> GamePlayersByGameId_IQueryable = _repoP.FindByGameId(actualGameId);
+                ICollection<GamePlayer> GamePlayersByGameId_List = new List<GamePlayer>();  // trecho necessário para converter de IQueryable para List
+                foreach ( GamePlayer gamePlayer in GamePlayersByGameId_IQueryable)          //
+                {                                                                           //
+                    GamePlayersByGameId_List.Add(gamePlayer);                               //
+                }                                                                           //
+                
+                gameTobeClosed.GamePlayers = GamePlayersByGameId_List;                
+                gameTobeClosed.TotalKills = GamePlayersByGameId_List.Select(k => k.Kills).Sum();
 
 
                 _repoG.Update(gameTobeClosed);
+
+                //if (gameTobeClosed.Id == 2)
+                //{
+                //   var g = _repoG.FindById(2);
+
+                //}
             }
 
         }

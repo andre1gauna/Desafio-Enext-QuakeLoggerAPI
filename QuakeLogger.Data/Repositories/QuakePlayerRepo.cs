@@ -1,4 +1,5 @@
-﻿using QuakeLogger.Data.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using QuakeLogger.Data.Context;
 using QuakeLogger.Domain.Interfaces.Repositories;
 using QuakeLogger.Domain.Models;
 using QuakeLogger.Models;
@@ -29,19 +30,19 @@ namespace QuakeLogger.Data.Repositories
 
         public List<Player> GetAll()
         {
-            return _context.Players.ToList();
+            return _context.Players.Include(x => x.PlayerGames).ToList();
         }
         public Player FindById(int id)
         {
             return _context.Players
-                .Where(i => i.Id == id)
+                .Where(i => i.Id == id).Include(x => x.PlayerGames)
                 .FirstOrDefault();
         }        
 
         public Player FindByName(string name)
         {
             return _context.Players
-                .Where(i => i.Name == name)
+                .Where(i => i.Name == name).Include(x => x.PlayerGames)
                 .FirstOrDefault();
         }
         public IQueryable<GamePlayer> FindByGameId(int gameId)
@@ -56,11 +57,6 @@ namespace QuakeLogger.Data.Repositories
             _context.SaveChanges();
         }
 
-        public void Remove(int id)
-        {
-            var player = _context.Players.First(i => i.Id == id);
-            _context.Players.Remove(player);
-            _context.SaveChanges();
-        }
+        
     }
 }

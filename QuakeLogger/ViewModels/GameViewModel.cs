@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace QuakeLogger.ViewModels
 {
-    public class GameViewModel<PlayerViewModel>
+    public class GameViewModel
     {
         public int Id { get; set; }
         public int TotalKills { get; set; }

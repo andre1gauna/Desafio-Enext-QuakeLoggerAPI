@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using QuakeLogger.API.AutoMapper;
 using QuakeLogger.API.ViewModels;
 using QuakeLogger.Domain.Interfaces.Repositories;
 using QuakeLogger.Models;
@@ -30,13 +31,18 @@ namespace QuakeLogger.Controllers
 
         //api/QuakeGameLogger/{id}       
         [HttpGet("{id}")]
-        public ActionResult<GameViewModel<PlayerViewModel>> GetById(int id)
-        {                           
-            var result = _mapper.Map<GameViewModel<PlayerViewModel>>(_repoG.FindById(id));
-
+        public ActionResult<GameViewModel> GetById(int id)
+        {
+            if (id == 2)
+            {
+                int a = 0;
+            }
+            var result = _mapper.Map<GameViewModel>(_repoG.FindById(id));
+            result.Players = _mapper.Map<IEnumerable<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));
             if (result is null)
                 return NotFound();
 
+           
             return Ok(result);
         }
 
