@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using QuakeLogger.API.AutoMapper;
 using QuakeLogger.API.ViewModels;
 using QuakeLogger.Domain.Interfaces.Repositories;
-using QuakeLogger.Models;
 using QuakeLogger.ViewModels;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QuakeLogger.Controllers
 {
@@ -33,29 +26,17 @@ namespace QuakeLogger.Controllers
         [HttpGet("{id}")]
         public ActionResult<GameViewModel> GetById(int id)
         {
-            if (id == 2)
-            {
-                int a = 0;
-            }
             var result = _mapper.Map<GameViewModel>(_repoG.FindById(id));
-            result.Players = _mapper.Map<IEnumerable<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));
-            if (result is null)
-                return NotFound();
-
-           
-            return Ok(result);
-        }
-
-        [HttpGet]
-        public ActionResult<List<PlayerViewModel>> GetPlayers()
-        {
-            var result = _mapper.Map<List<PlayerViewModel>>(_repoP.GetAll());
+            result.Players = _mapper.Map<List<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));
+            result.Players.RemoveAll(x => x.Name == "<world>");
+            
 
             if (result is null)
                 return NotFound();
 
+
             return Ok(result);
-        }
+        }           
 
 
     }

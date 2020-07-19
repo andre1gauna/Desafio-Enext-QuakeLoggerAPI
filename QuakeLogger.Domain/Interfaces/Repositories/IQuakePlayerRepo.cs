@@ -10,8 +10,7 @@ namespace QuakeLogger.Domain.Interfaces.Repositories
     public interface IQuakePlayerRepo : IRepositoryBase<Player>
     {
         public Player FindByName(string name);
-
         public IQueryable<GamePlayer> FindByGameId(int gameId);
-        public List<Player> GetAll();
+        
     }
 }

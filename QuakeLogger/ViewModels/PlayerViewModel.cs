@@ -10,6 +10,6 @@ namespace QuakeLogger.API.ViewModels
         public int Id { get; set; }
         public string Name { get; set; }
         public int Kills { get; set; }
-        public IEnumerable<int> GamesId { get; set; }
+        
     }
 }

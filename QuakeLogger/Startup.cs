@@ -33,6 +33,9 @@ namespace QuakeLogger
             services.AddScoped<IQuakePlayerRepo, QuakePlayerRepo>(); // injeção de dependência
 
             services.AddScoped<Parser>(); // Faz a leitura do arquivo .txt
+            services.AddScoped<ReportPrinter>(); // Imprime o relatório de ranking geral
+
+            
 
             services.AddAutoMapper(typeof(AutoMapperConfig)); // Adicionar o serviço do AutoMapper
 
@@ -51,12 +54,13 @@ namespace QuakeLogger
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Parser parser)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Parser parser, ReportPrinter reportPrinter)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 parser.Reader(@"C:\Users\andre\source\repos\QuakeLoggerAPI\raw.txt");
+                reportPrinter.Print();
             }
 
             else

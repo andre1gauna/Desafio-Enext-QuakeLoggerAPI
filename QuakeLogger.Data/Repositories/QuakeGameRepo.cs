@@ -30,7 +30,12 @@ namespace QuakeLogger.Data.Repositories
             return _context.Games
                 .Where(i => i.Id == id).Include(x=> x.GamePlayers)                
                 .FirstOrDefault();
-        }        
+        }
+        
+        public List<Game> GetAll()
+        {
+            return _context.Games.ToList();
+        }
         public void AddPlayer(Player player, int gameId)
         {
             Game game = FindById(gameId);

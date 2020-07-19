@@ -9,7 +9,7 @@ namespace QuakeLogger.Domain.Interfaces.Repositories
     {
         public int Add(T entity);
         public T FindById(int id);
-
+        public List<T> GetAll();
         public void Update(T entity);      
         
     }

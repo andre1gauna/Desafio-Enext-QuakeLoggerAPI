@@ -1,7 +1,4 @@
 ﻿using QuakeLogger.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace QuakeLogger.Domain.Models
 {
@@ -12,6 +9,20 @@ namespace QuakeLogger.Domain.Models
 
         public int PlayerId { get; set; }
         public Player Player { get; set; }
-        public int Kills { get; set; }
+
+        private int _kills;
+        public int Kills
+        {
+            get
+            {
+                return _kills;
+            }
+            set
+            {
+                _kills = value;
+                if (_kills < 0)
+                    Kills = 0;
+            }
+        }
     }
 }
