@@ -34,19 +34,11 @@ namespace QuakeLogger.Services
                 actualGameId = LineChecker(items, actualGameId);
             }
         }
-        private string FindKilled(string[] items)
+        private string FindKilled(Game game, string[] line)
         {
-            string killed = "";
-            int index = items.IndexOf("killed");
-            index++;
-
-            while ((items[index]) != "by")
-            {
-                killed += items[index] + " ";
-                index++;
-            }            
-
-            return killed.Trim();
+            (string, string) tuple = FindKilledAndKillMethod(line);
+            
+            return tuple.Item1.Trim();
         }
         private string FindKiller(string[] items)
         {
@@ -65,14 +57,14 @@ namespace QuakeLogger.Services
             return killer;
         }
         private void AddPlayer(string player, bool isKiller, int actualGameId)
-        {          
+        {
 
             Player createPlayer = new Player { Name = player };
             createPlayer.PlayerGames = new List<GamePlayer>
                 { new GamePlayer  {Player = createPlayer,
                                   PlayerId = createPlayer.Id,
                                   Game = _repoG.FindById(actualGameId),
-                                  GameId= actualGameId,                                  
+                                  GameId= actualGameId,
                                   }
                 };
 
@@ -82,7 +74,7 @@ namespace QuakeLogger.Services
 
         private void AddPlayerTogame(string player, bool isKiller, int actualGameId)
         {
-            Player playerToBeUpdated = _repoP.FindByName(player);            
+            Player playerToBeUpdated = _repoP.FindByName(player);
 
             playerToBeUpdated.PlayerGames.Add(
                 new GamePlayer
@@ -90,9 +82,9 @@ namespace QuakeLogger.Services
                     Player = playerToBeUpdated,
                     PlayerId = playerToBeUpdated.Id,
                     Game = _repoG.FindById(actualGameId),
-                    GameId = actualGameId,                    
-                });  
-            
+                    GameId = actualGameId,
+                });
+
             _repoP.Update(playerToBeUpdated);
             AddKill(player, isKiller, actualGameId);
         }
@@ -121,9 +113,10 @@ namespace QuakeLogger.Services
 
         private int LineChecker(string[] line, int actualGameId)
         {
-            
+            Game game = new Game();
+            game.KillMethods = new List<KillMethod>();
             string killer;
-            string killed;            
+            string killed;
 
             if (line.Contains("InitGame:"))
             {
@@ -133,7 +126,10 @@ namespace QuakeLogger.Services
             else if (line.Contains("Kill:"))
             {
                 killer = FindKiller(line);
-                killed = FindKilled(line);
+                killed = FindKilled(game, line);
+                (string, string) tuple = FindKilledAndKillMethod(line); // Necessário para encontrar o KillMethod atual.
+                
+                game = getKillMethod(game, tuple.Item2); // O segundo item é o KillMethod.
 
                 if (_repoP.FindByName(killer) == null)
                 {
@@ -151,13 +147,14 @@ namespace QuakeLogger.Services
                 else if (!HasGame(killed, actualGameId))
                     AddPlayerTogame(killed, false, actualGameId);
                 else
-                    AddKill(killed, false, actualGameId);                
+                    AddKill(killed, false, actualGameId);
 
             }
 
             else if (line.Contains("ShutdownGame:"))
             {
                 Game gameToBeClosed = _repoG.FindById(actualGameId);
+                gameToBeClosed.KillMethods = game.KillMethods;
                 IQueryable<GamePlayer> GamePlayersByGameId_IQueryable = _repoP.FindByGameId(actualGameId);
                 ICollection<GamePlayer> GamePlayersByGameId_List = new List<GamePlayer>();  // trecho necessário para converter de IQueryable para List
                 foreach (GamePlayer gamePlayer in GamePlayersByGameId_IQueryable)          //
@@ -194,6 +191,34 @@ namespace QuakeLogger.Services
                 .Select(i => i.GameId)
                 .Contains(actualGameId);
         }
-        
+
+        private Game getKillMethod(Game game, string killMethod)
+        {
+            KillMethod KillMethod = new KillMethod { NameId = killMethod, Count = 1 };
+            if (!game.KillMethods.Contains(KillMethod))
+                game.KillMethods.Add(KillMethod);
+            else
+                game.KillMethods.Find(k => k.NameId == killMethod).Count++;
+
+            return game;
+        }
+
+        private (string, string) FindKilledAndKillMethod(string[] line)
+        {
+            string killed = "";            
+
+            int index = line.IndexOf("killed");
+            index++;
+
+            while ((line[index]) != "by")
+            {
+                killed += line[index] + " ";
+                index++;
+            }
+            index++;
+            (string, string) tuple = (killed, line[index]);
+            return tuple;
+
+        }
     }
 }

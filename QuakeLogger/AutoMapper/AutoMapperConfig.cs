@@ -22,6 +22,7 @@ namespace QuakeLogger.AutoMapper
 
             CreateMap<Game, GameViewModel>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.KillMethods, opt => opt.MapFrom(src => src.KillMethods))
                  .ForMember(dest => dest.Players, opt => opt.MapFrom(src => src.GamePlayers.Where(i => i.GameId == src.Id).Select(p => p.Player)))
                  .ForMember(dest => dest.TotalKills, opt => opt.MapFrom(src => src.GamePlayers
                                                                                   .Where(i => i.GameId == src.Id)

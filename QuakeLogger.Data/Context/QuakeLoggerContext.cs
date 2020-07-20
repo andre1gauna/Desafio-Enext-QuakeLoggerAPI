@@ -14,6 +14,7 @@ namespace QuakeLogger.Data.Context
         public DbSet<Game> Games { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<GamePlayer> GamePlayers { get; set; }
+        public DbSet<KillMethod> KillMethods { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -22,6 +23,10 @@ namespace QuakeLogger.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
+            modelBuilder.Entity<KillMethod>()
+                .HasKey(k => k.NameId);
+
             modelBuilder.Entity<GamePlayer>()
                 .HasKey(gp => new { gp.GameId, gp.PlayerId });
 

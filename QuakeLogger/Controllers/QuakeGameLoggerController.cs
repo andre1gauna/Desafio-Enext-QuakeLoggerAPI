@@ -27,7 +27,7 @@ namespace QuakeLogger.Controllers
         public ActionResult<GameViewModel> GetById(int id)
         {
             var result = _mapper.Map<GameViewModel>(_repoG.FindById(id));
-            result.Players = _mapper.Map<List<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));
+            result.Players = _mapper.Map<List<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));            
             result.Players.RemoveAll(x => x.Name == "<world>");
             
 
