@@ -1,9 +1,9 @@
-##QuakeLogger
+## QuakeLogger
 
 Este arquivo Readme visa explicar o funcionamento da aplicação, assim como um breve detalhamento de seus métodos internos para 
 que outro desenvolvedor possa compreender e dar prosseguimento, se assim desejar, ao projeto.
 
-#Funcionamento
+# Funcionamento
 
 A aplicação opera da seguinte forma: A classe principal que realiza o parser do Log de partidas - chamada Parser - recebe em 
 seu construtor uma string com o caminho do arquivo .txt que será trabalhado, e o método Reader() desta classe é quem dá início
