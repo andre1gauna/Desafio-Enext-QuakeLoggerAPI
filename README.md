@@ -78,6 +78,6 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	Público - Retorna uma lista de KillMethods de acordo com Id do Game. utilizado nos testes
 	
 ### Testes
-	Dentro da solução, há o projeto QuaeLogger.Tests, onde é possível testar algumas das funcionalidades principais da aplicação. Não é possível testar os
-	metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio.
+Dentro da solução, há o projeto QuaeLogger.Tests, onde é possível testar algumas das funcionalidades principais da aplicação. Não é possível testar os
+metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio.
 	
