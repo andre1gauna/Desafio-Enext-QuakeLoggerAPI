@@ -25,11 +25,11 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	
         Todos os métodos são privados, com exceção dos que estiverem descritos como público.
 
-..*Reader()
+- Reader()
 	Público - Realiza a leitura linha a linha do arquivo, chamando o método LineChecker() para que este analise
 	a linha atual
 
-..* LineChecker()
++ LineChecker()
 	A depender da informação em formato string[] que receber, este método pode criar uma partida, adicionar jogadores, adicionar
 	Kill Methods e fechar uma partida.
 
