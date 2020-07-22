@@ -37,12 +37,11 @@ namespace QuakeLogger.Tests.ServicesTests
         [Fact]
         public void ReaderGettingGameById_ShouldWork()
         {
-            Game actualGame = _parser.GetGame(1);
+            Game actualGame = _parser.GetGameById(1);
             Game expecetedGame = _context.Games.Where(x => x.Id == 1).FirstOrDefault();
             List<KillMethod> expectedKillMethods = _parser.GetKillMethodsByGameId(1);
             List<KillMethod> actualKillMethods = _context.KillMethods.Where(i => i.GameId == 1).ToList();
-            Assert.Equal(expectedKillMethods, actualKillMethods);
-
+            
             Assert.Equal(expecetedGame, actualGame);
         }
 

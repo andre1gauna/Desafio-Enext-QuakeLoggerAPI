@@ -11,12 +11,10 @@ namespace QuakeLogger.Services
     public class ReportPrinter
     {
         private readonly IQuakeGameRepo _repoG;
-        private readonly IQuakePlayerRepo _repoP;
-
-        public ReportPrinter(IQuakeGameRepo repositoryG, IQuakePlayerRepo repositoryP)
+        
+        public ReportPrinter(IQuakeGameRepo repositoryG)
         {
-            _repoG = repositoryG;
-            _repoP = repositoryP;
+            _repoG = repositoryG;            
         }
 
         public void Print()
