@@ -25,7 +25,7 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	
         Todos os métodos são privados, com exceção dos que estiverem descritos como público.
 
-- Reader()
++ Reader()
 	Público - Realiza a leitura linha a linha do arquivo, chamando o método LineChecker() para que este analise
 	a linha atual
 
@@ -33,45 +33,45 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	A depender da informação em formato string[] que receber, este método pode criar uma partida, adicionar jogadores, adicionar
 	Kill Methods e fechar uma partida.
 
-..* CreateGame()
++ CreateGame()
 	Cria uma partida no banco de dados em memória caso a linha atual contenha a string "InitGame:".
 
-..* Closegame()
++ Closegame()
 	Finaliza a partida recém criada no banco de dados tualizando suas informações caso a linha atual contenha "ShutdownGame:"
 
-..* FindKiller()
++ FindKiller()
 	Encontra o killer atual com base em seu nome.
 
-..* FindKilled()
++ FindKilled()
 	Encontra o killed atual com base em seu nome.	
 	
-..* GetKillMethod()
++ GetKillMethod()
 	Encontra o KillMethod atual com base em seu nome
 	
-..* AddKillMethod()
++ AddKillMethod()
 	Adiciona o KillMethod atual no banco em memória, ou então incrementa sseu contador caso ja exista no banco em memória.
 	
-..* AddPlayer()
++ AddPlayer()
     Adiciona um Player à partida caso este não exista no banco.
 
-..* HasGame()
++ HasGame()
 	Confere se o Player está inserido no game atual.
 	
-..* AddPlayerTogame()
++ AddPlayerTogame()
 	Adiciona o Player à partida atual caso ele não esteja presente.
 	
-..* AddKill()
++ AddKill()
 	Adiciona uma Kill ao Player.
 
-..* ReverseString()
++ ReverseString()
 	Método auxiliar para reverter uma string. Necessário para corrigir o nome do killer.
 	
-..* GetGameById()
++ GetGameById()
 	Público - Retorna um Game respectivo ao Id inserido. Utilizado nos testes
 	
-..* GetPlayersByGameId()
++ GetPlayersByGameId()
 	Público - Retorna uma lista de Players de acordo com Id do Game. Utilizado nos testes.
 
-..* GetKillMethodsByGameId()
++ GetKillMethodsByGameId()
 	Público - Retorna uma lista de KillMethods de acordo com Id do Game. utilizado nos testes
 	
