@@ -5,6 +5,8 @@ que outro desenvolvedor possa compreender e dar prosseguimento, se assim desejar
 
 ## Funcionamento
 
+Para rodar a aplicação, abra o arquivo QuakeLoggerAPI.sln no Visual Studio e execute-a.
+
 A aplicação opera da seguinte forma: A classe principal que realiza o parser do Log de partidas - chamada Parser - recebe em 
 seu construtor uma string com o caminho do arquivo .txt que será trabalhado, e o método Reader() desta classe é quem dá início
 à leitura do arquivo e processa todas as suas informações relevantes, alocando-as em um banco de dados em memória através de
@@ -74,4 +76,8 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 
 + GetKillMethodsByGameId()
 	Público - Retorna uma lista de KillMethods de acordo com Id do Game. utilizado nos testes
+	
+### Testes
+	Dentro da solução, há o projeto QuaeLogger.Tests, onde é possível testar algumas das funcionalidades principais da aplicação. Não é possível testar os
+	metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio.
 	
