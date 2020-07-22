@@ -9,7 +9,7 @@ namespace QuakeLogger.ViewModels
     {
         public int Id { get; set; }
         public int TotalKills { get; set; }
-        public List<KillMethod> KillMethods { get; set; }
+        public List<KillMethodViewModel> KillMethods { get; set; }
         public List<PlayerViewModel> Players { get; set; }
     }
 }

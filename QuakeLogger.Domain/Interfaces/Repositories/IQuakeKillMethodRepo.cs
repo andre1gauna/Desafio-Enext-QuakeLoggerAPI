@@ -1,12 +1,12 @@
 ﻿using QuakeLogger.Domain.Models;
-using QuakeLogger.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace QuakeLogger.Domain.Interfaces.Repositories
 {
-    public interface IQuakeGameRepo : IRepositoryBase<Game>
-    {        
+    public interface IQuakeKillMethodRepo : IRepositoryBase<KillMethod>
+    {
+        public KillMethod FindByName(string nameId);
     }
 }

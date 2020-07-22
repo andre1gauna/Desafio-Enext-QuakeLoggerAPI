@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuakeLogger.Data.Context;
 using QuakeLogger.Domain.Interfaces.Repositories;
+using QuakeLogger.Domain.Models;
 using QuakeLogger.Models;
 using System;
 using System.Collections.Generic;
@@ -24,25 +25,22 @@ namespace QuakeLogger.Data.Repositories
             _context.SaveChanges();
 
             return game.Id;
-        }
+        }        
         public Game FindById(int id)
         {
             return _context.Games
-                .Where(i => i.Id == id).Include(x=> x.GamePlayers)                
+                .Where(i => i.Id == id)
+                .Include(x => x.KillMethods)
+                .Include(x=> x.GamePlayers)                
                 .FirstOrDefault();
         }
         
         public List<Game> GetAll()
         {
-            return _context.Games.ToList();
-        }
-        public void AddPlayer(Player player, int gameId)
-        {
-            Game game = FindById(gameId);
-            game.GamePlayers.Where(id => id.GameId == gameId).Select(p => p.Player = player);
-            _context.Games.Update(game);
-            _context.SaveChanges();
-        }
+            return _context.Games
+                .Include(x => x.KillMethods)
+                .ToList();
+        }     
 
         public void Update(Game game)
         {

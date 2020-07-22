@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeLogger.API", "QuakeLogger\QuakeLogger.API.csproj", "{82E96016-2DE4-48DC-9232-F4796B36832F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuakeLogger.API", "QuakeLogger\QuakeLogger.API.csproj", "{82E96016-2DE4-48DC-9232-F4796B36832F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeLogger.Domain", "QuakeLogger.Domain\QuakeLogger.Domain.csproj", "{2985C45F-F165-4814-9B71-0D242644CDFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuakeLogger.Domain", "QuakeLogger.Domain\QuakeLogger.Domain.csproj", "{2985C45F-F165-4814-9B71-0D242644CDFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeLogger.Data", "QuakeLogger.Data\QuakeLogger.Data.csproj", "{0872D821-CD07-4787-8D91-ECC48992EDCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuakeLogger.Data", "QuakeLogger.Data\QuakeLogger.Data.csproj", "{0872D821-CD07-4787-8D91-ECC48992EDCA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeLogger.Services", "QuakeLogger.Services\QuakeLogger.Services.csproj", "{9ACBD596-226F-4465-8030-42D5C5C885B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuakeLogger.Services", "QuakeLogger.Services\QuakeLogger.Services.csproj", "{9ACBD596-226F-4465-8030-42D5C5C885B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeLogger.Tests", "XUnitTestProject1\QuakeLogger.Tests.csproj", "{D6F6F3E1-F5F4-4968-9B94-581A1C323B5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{9ACBD596-226F-4465-8030-42D5C5C885B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9ACBD596-226F-4465-8030-42D5C5C885B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9ACBD596-226F-4465-8030-42D5C5C885B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6F6F3E1-F5F4-4968-9B94-581A1C323B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6F6F3E1-F5F4-4968-9B94-581A1C323B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6F6F3E1-F5F4-4968-9B94-581A1C323B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6F6F3E1-F5F4-4968-9B94-581A1C323B5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

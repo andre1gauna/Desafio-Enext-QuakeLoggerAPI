@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using QuakeLogger.API.ViewModels;
+using QuakeLogger.Domain.Models;
 using QuakeLogger.Models;
 using QuakeLogger.ViewModels;
 using System;
@@ -19,6 +20,10 @@ namespace QuakeLogger.AutoMapper
 
             CreateMap<Player, PlayerViewModel>()                 
                  .ForMember(dest => dest.Kills, opt => opt.MapFrom(src => src.PlayerGames.Where(i => i.PlayerId == src.Id).Select(k => k.Kills).Sum()));
+
+            CreateMap<KillMethod, KillMethodViewModel>()
+                 .ForMember(dest => dest.Method, opt => opt.MapFrom(src => src.NameId))
+                 .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.Count));
 
             CreateMap<Game, GameViewModel>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

@@ -19,13 +19,16 @@ namespace QuakeLogger.Data.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase("InMemoryProvider");
+
+            //optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
             modelBuilder.Entity<KillMethod>()
-                .HasKey(k => k.NameId);
+                .HasOne(g => g.Game)
+                .WithMany(km => km.KillMethods)
+                .HasForeignKey(km => km.GameId);                
 
             modelBuilder.Entity<GamePlayer>()
                 .HasKey(gp => new { gp.GameId, gp.PlayerId });

@@ -14,11 +14,13 @@ namespace QuakeLogger.Controllers
     {
         private readonly IQuakeGameRepo _repoG;
         private readonly IQuakePlayerRepo _repoP;
+        private readonly IQuakeKillMethodRepo _repoKM;
         private readonly IMapper _mapper;
-        public QuakeGameLoggerController(IQuakeGameRepo repositoryG, IQuakePlayerRepo repositoryP, IMapper mapper)
+        public QuakeGameLoggerController(IQuakeGameRepo repositoryG, IQuakePlayerRepo repositoryP, IQuakeKillMethodRepo repositoryKM, IMapper mapper)
         {
             _repoG = repositoryG;
             _repoP = repositoryP;
+            _repoKM = repositoryKM;
             _mapper = mapper;
         }
 
@@ -26,14 +28,15 @@ namespace QuakeLogger.Controllers
         [HttpGet("{id}")]
         public ActionResult<GameViewModel> GetById(int id)
         {
+            if(_repoG.GetAll().Count<id)
+            {                
+               return NotFound();
+            }
+
             var result = _mapper.Map<GameViewModel>(_repoG.FindById(id));
-            result.Players = _mapper.Map<List<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));            
-            result.Players.RemoveAll(x => x.Name == "<world>");
-            
-
-            if (result is null)
-                return NotFound();
-
+            result.Players = _mapper.Map<List<PlayerViewModel>>(_repoP.FindByGameId(id).Select(p => p.Player));
+            result.KillMethods = _mapper.Map<List<KillMethodViewModel>>(_repoKM.GetAll().Where(i => i.GameId==result.Id).ToList());
+            result.Players.RemoveAll(x => x.Name == "<world>");         
 
             return Ok(result);
         }           

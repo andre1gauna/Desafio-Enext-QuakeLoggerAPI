@@ -11,5 +11,14 @@ namespace QuakeLogger.Models
         public List<KillMethod> KillMethods { get; set; }
         public ICollection<GamePlayer> GamePlayers { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return this.Id == ((Game)obj).Id;
+        }
+        public override int GetHashCode()
+        {
+            return (this.Id.ToString() + '|' + this.TotalKills.ToString()).GetHashCode();
+        }
+
     }
 }

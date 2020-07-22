@@ -31,9 +31,11 @@ namespace QuakeLogger
 
             services.AddScoped<IQuakeGameRepo, QuakeGameRepo>(); // injeção de dependência
             services.AddScoped<IQuakePlayerRepo, QuakePlayerRepo>(); // injeção de dependência
+            services.AddScoped<IQuakeKillMethodRepo, QuakeKillMethodRepo>(); // injeção de dependência
 
             services.AddScoped<Parser>(); // Faz a leitura do arquivo .txt
             services.AddScoped<ReportPrinter>(); // Imprime o relatório de ranking geral
+
 
             
 
