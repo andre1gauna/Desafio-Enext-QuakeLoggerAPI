@@ -68,7 +68,7 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	Adiciona o Player à partida atual caso ele não esteja presente.
 	
 + AddKill()
-	Adiciona uma Kill ao Player.
+	Adiciona uma Kill ao Player caso ele seja um killer, ou decrementa uma kill caso ele tenha sido morto (killed). A quantidade de kills nunca é menor do que 0.
 
 + ReverseString()
 	Método auxiliar para reverter uma string. Necessário para corrigir o nome do killer.
