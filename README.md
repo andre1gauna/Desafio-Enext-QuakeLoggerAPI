@@ -3,6 +3,10 @@
 Este arquivo Readme visa explicar o funcionamento da aplicação, assim como um breve detalhamento de seus métodos internos para 
 que outro desenvolvedor possa compreender e dar prosseguimento, se assim desejar, ao projeto.
 
+## O que faz?
+
+Esta aplicação é um Parser de logs de partidas do Quake III Arena. Ela irá busca um arquivo com o nome "raw" na raiz do projeto e irá realizar operações sobre ele para poder exibir tanto no console quanto via API Rest as informações das partidas, como quem matou quem, quantidade de mortes por jogador, quantidade total de mortes por partida e metódos de morte com suas respectivas quantidades por partida.
+
 ## Funcionamento
 
 Para rodar a aplicação, abra o arquivo QuakeLoggerAPI.sln no Visual Studio e execute-a.
@@ -79,5 +83,5 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 	
 ### Testes
 Dentro da solução, há o projeto QuaeLogger.Tests, onde é possível testar algumas das funcionalidades principais da aplicação. Não é possível testar os
-metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio.
+metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio. O contexto de banco de dados utilizado nos textes será gerado em memória, e utilzará um arquivo na raiz do projeto chamado testRaw para fazer o parser.
 	
