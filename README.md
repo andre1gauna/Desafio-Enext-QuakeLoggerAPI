@@ -5,7 +5,7 @@ que outro desenvolvedor possa compreender e dar prosseguimento, se assim desejar
 
 ## O que faz?
 
-Esta aplicação é um Parser de logs de partidas do Quake III Arena. Ela irá busca um arquivo com o nome "raw" na raiz do projeto e irá realizar operações sobre ele para poder exibir tanto no console quanto via API Rest as informações das partidas como: quem matou quem, quantidade de mortes por jogador, quantidade total de mortes por partida e metódos de morte com suas respectivas quantidades por partida.
+Esta aplicação é um Parser de logs de partidas do Quake III Arena. Ela irá busca um arquivo com o nome "raw" na raiz do projeto e realizará operações sobre ele para poder exibir tanto no console quanto via API Rest as informações das partidas como: quem matou quem, quantidade de mortes por jogador, quantidade total de mortes por partida e metódos de morte com suas respectivas quantidades por partida.
 Obs: para cada morte que um jogador sofre, ele perde uma kill.
 
 ## Funcionamento
