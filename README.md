@@ -85,6 +85,7 @@ dos Kill Methods. Esta exibição é realizada pelo método Print() da classe Re
 ### Testes
 Dentro da solução, há o projeto QuaeLogger.Tests, onde é possível testar algumas das funcionalidades principais da aplicação. Não é possível testar os
 metodos privados. Para executar os testes, execute-os pelo gerenciador de testes do Visual Studio. O contexto de banco de dados utilizado nos textes será gerado em memória, e utilzará um arquivo na raiz do projeto chamado testRaw para fazer o parser.
+
 from pdf2image import convert_from_path 
 import numpy as np 
 from PIL import Image 
@@ -114,7 +115,7 @@ poppler_path = r'poppler-0.68.0\bin'
 pytesseract.pytesseract.tesseract_cmd= r'Tesseract-OCR\tesseract.exe'
 
 
-def Leitura(prefixo,imagens):
+def Leitura(prefixo, imagens):
     global contadorArea
     global Lista_Areas
     global valorMinimoAreaRelativa
@@ -126,12 +127,17 @@ def Leitura(prefixo,imagens):
     i=0     
     
     for imagem in imagens:
-        
+
+        if (prefixo == 'area'):
+            Lista_campos_Final.clear() 
+            Lista_width_Final.clear()
+            Lista_height_Final.clear()
+        verificacao = 0
         contadorImagem += 1
-        paginaAtual = prefixo+ str(contadorImagem) + '.jpg' 
+        paginaAtual = 'Salvos/'+ prefixo + str(contadorImagem) + '.jpg' 
         imagem.save(paginaAtual, "JPEG") 
-        img = cv2.imread(prefixo+ str(contadorImagem) + '.jpg', 0) 
-        img2 = cv2.imread(prefixo+ str(contadorImagem) + '.jpg') 
+        img = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg', 0) 
+        img2 = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg') 
         _, thrash = cv2.threshold(img,200,255, cv2.THRESH_BINARY) 
         contornos, hierarquias = cv2.findContours(thrash, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         Altura = img.shape[0] 
@@ -147,87 +153,62 @@ def Leitura(prefixo,imagens):
         Lista_campos_Atual = []
         Lista_width_Atual =[] 
         Lista_height_Atual = []              
-        contadorHierarq = 0
-        for contorno in contornos:
-             
-            contornoCorrigido = cv2.approxPolyDP(contorno, 0.015* cv2.arcLength(contorno,True), True)
-            # x,y,w,h = cv2.boundingRect(contornoCorrigido)
-            # if (x in range(315,335) and y in range(1405,1425)): 
-            #         a = len(contornoCorrigido)
-            #         cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
-            #         cv2.imwrite('pacampos'+str(contador)+'.jpg',img2)
-            #         b=20 
-            if len(contornoCorrigido) == 4: 
-                x,y,w,h = cv2.boundingRect(contornoCorrigido) 
-                if y==0: 
-                    y=0.01 
-                if x==0: 
-                    x=0.01 
-                if (x in range(185,200) and y in range(290,305)): 
-                    ponto = 20 
-                areaRetangulo = w*h 
-                areaRelativa = AreaTotal/areaRetangulo 
-                razaoX = x_anterior/x 
-                razaoY = y_anterior/y 
-                relacaoPontoX = 0.85<=(razaoX)<=1.15 
-                relacaoPontoY = 0.85<=(razaoY)<=1.15
-                if (areaRelativa < 3000 and areaRelativa > 5):                
-                    if(relacaoPontoX is True and relacaoPontoY is True):                                                                
-                        if(areaRetangulo<areaRetangulo_Anterior):
+        ContornosValidos = []
+        Lista_ContornosDeAreas = []
+        
+        while (verificacao < 2):
+            for contorno in contornos:             
+                contornoCorrigido = cv2.approxPolyDP(contorno, 0.015* cv2.arcLength(contorno,True), True)
+            
+                if len(contornoCorrigido) == 4:                 
+                    x,y,w,h = cv2.boundingRect(contornoCorrigido) 
+                    if y==0: 
+                        y=0.01 
+                    if x==0: 
+                        x=0.01                 
+                    areaRetangulo = w*h 
+                    areaRelativa = AreaTotal/areaRetangulo 
+                    
+                    if (areaRelativa < 3000 and areaRelativa > 2):            
+                        if (areaRelativa < valorMinimoAreaRelativa and verificacao == 0): # garante que o contorno é uma área que contem campos, e não um campo avulso.                          
+                            cv2.drawContours(thrash, [contorno], 0, (255,255,255), 11)                           
                             campo = thrash[y:(y+h), x:(x+w)]
-                            if (areaRelativa > valorMinimoAreaRelativa): 
-                                cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) +'campo'+str(j-1)+'.png', campo)
-                                Lista_campos_Atual[j-1]=Image.open('Salvos/'+ prefixo + str(contadorImagem) +'campo'+str(j-1)+'.png')
-                                Lista_height_Atual[j-1]=h
-                                Lista_width_Atual[j-1]=w
-                                x_anterior = 0.1
-                                y_anterior = 0.1
-                                cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
-                            else:
-                                cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a-1)+'.png', campo)
-                                Lista_Areas[a-1]=Image.open('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a-1)+'.png')                                
-                                x_anterior = 0.1
-                                y_anterior = 0.1
-                                cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
+                            if(not np.mean(campo) == 255):                                               
+                                cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png',campo)
+                                cv2.drawContours(thrash, [contorno], 0, (255,255,255), -1) 
+                                Lista_Areas.append(Image.open('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png'))                                                
+                                cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)                        
+                                a += 1
+                                # cv2.imwrite('Salvos/trashAreaFilled.png', thrash)
+                                
 
-                    else:
-                        if (areaRelativa > valorMinimoAreaRelativa): 
+                        elif (areaRelativa > valorMinimoAreaRelativa and verificacao > 0):                         
                             cv2.drawContours(thrash, [contorno], 0, (255,255,255), 11)                           
-                            campo = thrash[y:(y+h), x:(x+w)]                                               
-                            cv2.imwrite('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png',campo) 
-                            Lista_campos_Atual.append(Image.open('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png')) 
-                            Lista_height_Atual.append(h) 
-                            Lista_width_Atual.append(w)                
-                            x_anterior = x
-                            y_anterior = y
-                            cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
-                            j +=1                     
+                            campo = thrash[y:(y+h), x:(x+w)]
+                            if(not np.mean(campo) == 255):
+                                cv2.imwrite('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png',campo)
+                                cv2.drawContours(thrash, [contorno], 0, (255,255,255), -1)  
+                                Lista_campos_Atual.append(Image.open('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png')) 
+                                Lista_height_Atual.append(h) 
+                                Lista_width_Atual.append(w)                                                                              
+                                cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
+                                j += 1                                
+                                # cv2.imwrite('Salvos/trashAreaFilled.png', thrash)
+                                                  
 
-                        else:
-                            cv2.drawContours(thrash, [contorno], 0, (255,255,255), 11)                           
-                            campo = thrash[y:(y+h), x:(x+w)]                                               
-                            cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png',campo) 
-                            Lista_Areas.append(Image.open('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png'))                      
-                            x_anterior = x
-                            y_anterior = y
-                            cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
-                            a += 1
-                    w_anterior = w     
-                    h_anterior = h
-                    areaRetangulo_Anterior = areaRetangulo
-            contadorHierarq += 1
+            if (verificacao > 0):
+                Lista_campos_Atual.reverse()
+                Lista_width_Atual.reverse()    
+                Lista_height_Atual.reverse()
+                Lista_campos_Final += Lista_campos_Atual
+                Lista_width_Final += Lista_width_Atual
+                Lista_height_Final += Lista_height_Atual
 
-        
-        Lista_campos_Atual.reverse()
-        Lista_width_Atual.reverse()    
-        Lista_height_Atual.reverse()
-        Lista_campos_Final.append(Lista_campos_Atual)
-        Lista_width_Final.append(Lista_width_Atual)
-        Lista_height_Final.append(Lista_height_Atual)
-        
-        if (criarUmTxtPorImagem == True):
-            contadorArea += 1
-            CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, 'resultadoArea'+ str(contadorArea))
+            if (criarUmTxtPorImagem == True and verificacao > 0):
+                contadorArea += 1
+                CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, 'resultadoArea'+ str(contadorArea))
+
+            verificacao += 1
 
     if (criarUmTxtPorImagem == False):
         CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, 'resultadoCamposAvulsos')        
@@ -236,70 +217,51 @@ def Leitura(prefixo,imagens):
 def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoResultado):
     global contadorTXT
     contadorTXT += 1 
-    eixoX = int(max(Lista_width_Final[0]))   
-    eixoY = int(sum(Lista_height_Final[0]))
+    eixoX = int(max(Lista_width_Final))   
+    eixoY = int(sum(Lista_height_Final))
     new_img = Image.new("RGB", (eixoX, eixoY), (255,255,255)) 
     new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
     soma_altura = 0 
     k = 0 
     
-    for campo in Lista_campos_Final[0]: 
+    for campo in Lista_campos_Final: 
         new_img.paste(campo, (0, soma_altura)) 
-        soma_altura += Lista_height_Final[0][k]
+        soma_altura += Lista_height_Final[k]
         k += 1 
     new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
     texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por') 
     texto = texto.replace('|','').replace('[','').replace(']','').replace('(','').replace(')','').replace(';','').replace('ª','').replace('\x0C','')
     texto = "".join([s for s in texto.strip().splitlines(True) if s.strip()])    
-    #print (texto) 
+  
     f = open(prefixoResultado + '.txt', 'w+') 
     f.write(texto)
-    Lista_campos_Final.clear() 
-    Lista_width_Final.clear()
-    Lista_height_Final.clear() 
     
 
 
-#paginas = convert_from_path(caminhoPac, 400, poppler_path=poppler_path)
-
-pagina2 = Image.open('pagina10.jpg')
-imagens = []
-imagens.append(pagina2)
+# pagina2 = Image.open('pagina10.jpg')
+# imagens = []
+# imagens.append(pagina2)
+imagens = convert_from_path('testefinal.pdf', 400, poppler_path=poppler_path)
 contadorTXT=0
-
+# contadorArea = 0
 
 valorMinimoAreaRelativa = 15
 Lista_campos_Final = []
 Lista_width_Final = []
 Lista_height_Final = []
 Lista_Areas = []
+# criarUmTxtPorImagem = True
 criarUmTxtPorImagem = False
 Leitura("pagina", imagens)
 
-
-valorMinimoAreaRelativa = 5
+ 
+valorMinimoAreaRelativa = 4
 contadorArea = 0
 criarUmTxtPorImagem = True 
 Leitura("area", Lista_Areas)    
 
 
     
-
-
-# for campo in Lista_campos_Final:
-#     texto = pytesseract.image_to_string(campo, lang='por', config='--psm 10') 
-#     texto = texto.replace('|','').replace('[','').replace(']','').replace('(','').replace(')','').replace(';','').replace('ª','').replace('\x0C','').replace('\n','')
-#     texto = "".join([s for s in texto.strip().splitlines(True) if s.strip()])   
-#     Lista_texto.append(texto)
-# Lista_texto.reverse()
-
-# f = open("resultadoteste.txt", "w+")
-
-# for texto in Lista_texto:     
-#     f.write(texto + '\n')
-
-
-
 # crsor = conexao.cursor()
 # qery = (("""INSERT INTO TWISTER_CASH (ID_REGISTROCASH,
 #                                                                            TIPO_REGISTRO,
