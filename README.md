@@ -114,6 +114,7 @@ import sys
 
 poppler_path = r'poppler-0.68.0\bin' 
 pytesseract.pytesseract.tesseract_cmd= r'Tesseract-OCR\tesseract.exe'
+ListaDeComparativos = ['Identificação do Representante Legal','Endereço','Média mensal apurada no período dos últimos doze 12 meses','Dados dos Representantes','Pessoas autorizadas a receber os talões de cheques, assinando o respectivo comprovante na entrega:','Dados Representantes IEI','Devedores solidários','Solicitação de alterações de Domicílio Bancário','Endereço instalação','Estabelecimento localizado em shopping?','Assinatura','DECLARAÇÃO - CONTAS MANTIDAS POR ENTIDADES FATCA/CRS','4 - Dados do Contrador Pessoa Física Residente Fiscal em outro país','DECLARAÇÃO DE EMISSÃO DE AÇÕES AO PORTADOR BEARER SHARES AO BANCO ITAÚ']
 
 def Leitura(prefixo, imagens):
     global contadorArea
@@ -253,7 +254,7 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
 # imagens.append(pagina2)
 
 
-imagens = convert_from_path('testeV1.3.pdf', 400, poppler_path=poppler_path, fmt='jpeg', grayscale=True)
+imagens = convert_from_path('testeV1.3.pdf', 400, poppler_path=poppler_path, fmt='jpeg')
 #sys.exit()
 contadorTXT=0
 # contadorArea = 0
@@ -272,6 +273,20 @@ valorMinimoAreaRelativa = 1.5
 contadorArea = 0
 criarUmTxtPorImagem = True 
 Leitura("area", Lista_Areas)    
+
+while(contadorArea>0):
+    ListaLinhasTxt = open('Salvos/resultadoArea'+ str(contadorArea) +'.txt').readlines()
+    # str1 = "Ola, como vai?"
+    # str2 = "O lá c0m o aãai*"
+    # ratio = fuzz.ratio (str1.lower(), str2.lower())
+    # print(ratio)
+    for linha in ListaLinhasTxt:
+        for comparativo in ListaDeComparativos:
+            assertividade = fuzz.ratio (comparativo.lower(), linha.lower())
+            if assertividade >= 70 :
+
+    contadorArea -= 1
+
     
 # crsor = conexao.cursor()
 # qery = (("""INSERT INTO TWISTER_CASH (ID_REGISTROCASH,
@@ -335,6 +350,3 @@ Leitura("area", Lista_Areas)
                     
 # cursor.execute(query)                    
 # conexao.commit()
-
-
-	
