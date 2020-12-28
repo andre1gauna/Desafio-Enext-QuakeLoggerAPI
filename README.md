@@ -93,13 +93,7 @@ import cv2
 import pytesseract 
 import pyodbc
 from fuzzywuzzy import fuzz
-import sys
-
-# str1 = "Ola, como vai?"
-
-# str2 = "O lá c0m o aãai*"
 # ratio = fuzz.ratio (str1.lower(), str2.lower())
-# print(ratio)
 
 # server = 'sqndsc001'
 # db1 = 'DBTB420'
@@ -114,7 +108,90 @@ import sys
 
 poppler_path = r'poppler-0.68.0\bin' 
 pytesseract.pytesseract.tesseract_cmd= r'Tesseract-OCR\tesseract.exe'
+
 ListaDeComparativos = ['Identificação do Representante Legal','Endereço','Média mensal apurada no período dos últimos doze 12 meses','Dados dos Representantes','Pessoas autorizadas a receber os talões de cheques, assinando o respectivo comprovante na entrega:','Dados Representantes IEI','Devedores solidários','Solicitação de alterações de Domicílio Bancário','Endereço instalação','Estabelecimento localizado em shopping?','Assinatura','DECLARAÇÃO - CONTAS MANTIDAS POR ENTIDADES FATCA/CRS','4 - Dados do Contrador Pessoa Física Residente Fiscal em outro país','DECLARAÇÃO DE EMISSÃO DE AÇÕES AO PORTADOR BEARER SHARES AO BANCO ITAÚ']
+def switch_TipoArea(indiceComparativo, ListaLinhasTxt):
+    separador = ' '
+    
+    if (indiceComparativo == 0): # Identificação do Representante Legal / Procurador da Empresa autorizado a movimentar a conta
+        ListaLinhasTxt.remove(ListaLinhasTxt[0])
+        indexLinha = 0
+        CpfRepresentanteLegal = ''
+        NomeRepresentanteLegal = ''
+        CelularRepresentanteLegal = ''
+        TelFixoRepresentanteLegal = ''
+        EmailRepresentanteLegal = ''
+        for linha in ListaLinhasTxt:
+            linhaSplit = linha.split()
+            if (fuzz.ratio(linhaSplit[0].lower(), 'cpf:') >= 70 and not CpfRepresentanteLegal):
+                linhaSplit.remove(linhaSplit[0])
+                CpfRepresentanteLegal = separador.join(linhaSplit)
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'nome:') >= 70 and not NomeRepresentanteLegal):
+                linhaSplit.remove(linhaSplit[0])
+                NomeRepresentanteLegal = separador.join(linhaSplit)   
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'celular') >= 70 and not CelularRepresentanteLegal):                
+                proximaLinhaSplit = ListaLinhasTxt[indexLinha + 1].split()
+                proximaLinhaSplit.remove(proximaLinhaSplit[0])
+                CelularRepresentanteLegal = separador.join(proximaLinhaSplit)
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'telefone') >= 70 and not TelFixoRepresentanteLegal):                
+                proximaLinhaSplit = ListaLinhasTxt[indexLinha + 1].split()
+                proximaLinhaSplit.remove(proximaLinhaSplit[0])
+                TelFixoRepresentanteLegal = separador.join(proximaLinhaSplit)                
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'e-mail:') >= 70 and not EmailRepresentanteLegal):
+                linhaSplit.remove(linhaSplit[0])           
+                EmailRepresentanteLegal = separador.join(linhaSplit)                      
+            indexLinha += 1
+
+    if (indiceComparativo == 1): # Endereço
+        ListaLinhasTxt.remove(ListaLinhasTxt[0])
+        indexLinha = 0
+        EnderecoOutroLEC = ''
+        NumeroOutroLEC = ''
+        ComplementoOutroLEC = ''
+        CEPOutroLEC = ''
+        BairroOutroLEC = ''
+        
+        for linha in ListaLinhasTxt:
+            linhaSplit = linha.split()
+            if (fuzz.ratio(linhaSplit[0].lower(), 'endereço:') >= 70 and not EnderecoOutroLEC):
+                linhaSplit.remove(linhaSplit[0])
+                EnderecoOutroLEC = separador.join(linhaSplit)
+
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'número:') >= 70 and not NumeroOutroLEC):
+                linhaSplit.remove(linhaSplit[0])
+                NumeroOutroLEC = separador.join(linhaSplit)   
+
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'complemento:') >= 70 and not ComplementoOutroLEC):                
+                linhaSplit.remove(linhaSplit[0])           
+                ComplementoOutroLEC = separador.join(linhaSplit)   
+
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'cep:') >= 70 and not CEPOutroLEC):
+                linhaSplit.remove(linhaSplit[0])           
+                CEPOutroLEC = separador.join(linhaSplit)   
+
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'bairro:') >= 70 and not BairroOutroLEC):                
+                linhaSplit.remove(linhaSplit[0])           
+                BairroOutroLEC = separador.join(linhaSplit)    
+
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'telefone:') >= 70):
+                SalvarEmRamal = False
+                proximaLinhaSplit = ListaLinhasTxt[indexLinha + 1].split()
+                proximaLinhaSplit.remove(proximaLinhaSplit[0])
+                TelOutroLEC = ''
+                RamalOutroLEC =''
+                for item in proximaLinhaSplit:  
+                    if (fuzz.ratio(item.lower(), 'ramal:') >= 70):
+                        SalvarEmRamal = True          
+                    if (SalvarEmRamal == True):
+                        RamalOutroLEC += ' ' + item
+                    else:              
+                        TelOutroLEC += item
+
+                RamalOutroLEC = RamalOutroLEC.split()
+                RamalOutroLEC.remove(RamalOutroLEC[0])
+                RamalOutroLEC = separador.join(RamalOutroLEC)
+
+            indexLinha += 1
 
 def Leitura(prefixo, imagens):
     global contadorArea
@@ -237,9 +314,13 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
         campo = Image.fromarray(campo) 
         new_img.paste(campo, (0, soma_altura)) 
         soma_altura += Lista_height_Final[k]
-        k += 1 
+        k += 1
+    if (prefixoResultado == 'resultadoArea3'):       
+        new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg')
+        texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por')
+             
     #new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
-    #texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por')
+    
     texto = pytesseract.image_to_string(new_img, lang='por')  
     texto = texto.replace('|','').replace('[','').replace(']','').replace('(','').replace(')','').replace(';','').replace('ª','').replace('\x0C','')
     texto = "".join([s for s in texto.strip().splitlines(True) if s.strip()])    
@@ -254,7 +335,7 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
 # imagens.append(pagina2)
 
 
-imagens = convert_from_path('testeV1.3.pdf', 400, poppler_path=poppler_path, fmt='jpeg')
+imagens = convert_from_path('PACFinalV1.3Preenchida(impressa).pdf', 400, poppler_path=poppler_path, fmt='jpeg')
 #sys.exit()
 contadorTXT=0
 # contadorArea = 0
@@ -274,25 +355,29 @@ contadorArea = 0
 criarUmTxtPorImagem = True 
 Leitura("area", Lista_Areas)    
 
-while(contadorArea>0):
-    ListaLinhasTxt = open('Salvos/resultadoArea'+ str(contadorArea) +'.txt').readlines()
-    # str1 = "Ola, como vai?"
-    # str2 = "O lá c0m o aãai*"
-    # ratio = fuzz.ratio (str1.lower(), str2.lower())
-    # print(ratio)
-    for linha in ListaLinhasTxt:
-        for comparativo in ListaDeComparativos:
-            assertividade = fuzz.ratio (comparativo.lower(), linha.lower())
-            if assertividade >= 70 :
+# while(contadorArea>0):
+#     ListaLinhasTxt = open('Salvos/resultadoArea'+ str(contadorArea) +'.txt').readlines()
+#     # str1 = "Ola, como vai?"
+#     # str2 = "O lá c0m o aãai*"
+#     # ratio = fuzz.ratio (str1.lower(), str2.lower())
+#     # print(ratio)
+#     for linha in ListaLinhasTxt:
+#         indiceComparativo = 0
+#         for comparativo in ListaDeComparativos:
+#             assertividade = fuzz.ratio (comparativo.lower(), linha.lower())
+#             if assertividade >= 70 :
+#                 switch_TipoArea(indiceComparativo, ListaLinhasTxt)
+#                 break;
+#             indiceComparativo += 1    
 
-    contadorArea -= 1
 
-    
-# crsor = conexao.cursor()
-# qery = (("""INSERT INTO TWISTER_CASH (ID_REGISTROCASH,
-#                                                                            TIPO_REGISTRO,
-#                                                                            ID_AREA_RESPOSTA,
-#                                                                            ID_USUARIO_RESPOSTA,
+#     contadorArea -= 1
+
+# cursor = conexao.cursor()
+# query = (("""INSERT INTO TWISTER_CASH (ID_REGISTROCASH,
+#                                                                             TIPO_REGISTRO,
+#                                                                             ID_AREA_RESPOSTA,
+#                                                                             ID_USUARIO_RESPOSTA,
 #                                                                             DESTINATARIO_RESPOSTA,
 #                                                                             ASSUNTO_RESPOSTA,
 #                                                                             NIVEL1,
@@ -350,3 +435,4 @@ while(contadorArea>0):
                     
 # cursor.execute(query)                    
 # conexao.commit()
+
