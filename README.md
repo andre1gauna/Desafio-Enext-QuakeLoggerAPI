@@ -115,7 +115,6 @@ import sys
 poppler_path = r'poppler-0.68.0\bin' 
 pytesseract.pytesseract.tesseract_cmd= r'Tesseract-OCR\tesseract.exe'
 
-
 def Leitura(prefixo, imagens):
     global contadorArea
     global Lista_Areas
@@ -133,16 +132,20 @@ def Leitura(prefixo, imagens):
         if (prefixo == 'area'):
             Lista_campos_Final.clear() 
             Lista_width_Final.clear()
-            Lista_height_Final.clear()            
-            imagem = Image.open(imagem)            
-        paginaAtual = 'Salvos/'+ prefixo + str(contadorImagem) + '.jpg'          
-        imagem.save(paginaAtual, "JPEG") 
-        img = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg', 0) 
-        img2 = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg') 
-        _, thrash = cv2.threshold(img,200,255, cv2.THRESH_BINARY) 
+            Lista_height_Final.clear()
+        else:
+            imagem = np.array(imagem)
+            imagem = imagem[:,:,0]              
+                      
+        # paginaAtual = 'Salvos/'+ prefixo + str(contadorImagem) + '.jpg'          
+        # imagem.save(paginaAtual, "JPEG") 
+        # img = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg', 0) 
+        # img2 = cv2.imread('Salvos/' + prefixo+ str(contadorImagem) + '.jpg')
+        
+        _, thrash = cv2.threshold(imagem, 200, 255, cv2.THRESH_BINARY) 
         contornos, hierarquias = cv2.findContours(thrash, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        Altura = img.shape[0] 
-        Largura = img.shape[1] 
+        Altura = imagem.shape[0] 
+        Largura = imagem.shape[1] 
         AreaTotal = Altura*Largura              
         j = 0
         a = 0
@@ -171,12 +174,13 @@ def Leitura(prefixo, imagens):
                     if (areaRelativa < 3000 and areaRelativa > 1.5):            
                         if (areaRelativa < valorMinimoAreaRelativa and verificacao == 0): # garante que o contorno é uma área que contem campos, e não um campo avulso.                          
                             cv2.drawContours(thrash, [contorno], 0, (255,255,255), 9)
-                            cv2.imwrite('Salvos/trash.png', thrash)                           
-                            campo = thrash[y:(y+h), x:(x+w)]                            
-                            if(not np.mean(campo) == 255):                                               
-                                cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png',campo)
+                            #cv2.imwrite('Salvos/trash.png', thrash)                           
+                            Area = thrash[y:(y+h), x:(x+w)].copy()                            
+                            if(not np.mean(Area) == 255):                                               
+                                #cv2.imwrite('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png', Area)
+                                Lista_Areas.append(Area) 
                                 cv2.drawContours(thrash, [contorno], 0, (255,255,255), -1) 
-                                Lista_Areas.append('Salvos/'+ prefixo + str(contadorImagem) + 'Area' + str(a)+'.png')                                                
+                                                                             
                                 #cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)                        
                                 a += 1
                                 #cv2.imwrite('Salvos/trashAreaFilled.png', thrash)
@@ -184,14 +188,15 @@ def Leitura(prefixo, imagens):
 
                         elif (areaRelativa > valorMinimoAreaRelativa and verificacao > 0):                         
                             cv2.drawContours(thrash, [contorno], 0, (255,255,255), 9)
-                            cv2.imwrite('Salvos/trash.png', thrash)                           
-                            campo = thrash[y:(y+h), x:(x+w)]                           
+                            #cv2.imwrite('Salvos/trash.png', thrash)                           
+                            campo = thrash[y:(y+h), x:(x+w)].copy()                           
                             if(not np.mean(campo) == 255):
-                                cv2.imwrite('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png',campo)
-                                cv2.drawContours(thrash, [contorno], 0, (255,255,255), -1)  
-                                Lista_campos_Atual.append('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png') 
+                                #cv2.imwrite('Salvos/'+ prefixo  +str(contadorImagem) +'campo'+str(j)+'.png',campo)
+                                 
+                                Lista_campos_Atual.append(campo) 
                                 Lista_height_Atual.append(h) 
-                                Lista_width_Atual.append(w)                                                                              
+                                Lista_width_Atual.append(w)
+                                cv2.drawContours(thrash, [contorno], 0, (255,255,255), -1)                                                                               
                                 #cv2.drawContours(img2, [contorno], 0, (200,69,30), 3)
                                 j += 1                                
                                 #cv2.imwrite('Salvos/trashAreaFilled.png', thrash)
@@ -210,6 +215,8 @@ def Leitura(prefixo, imagens):
                 contadorArea += 1
 
             verificacao += 1
+            contadortemporario = 0
+           
 
     if (criarUmTxtPorImagem == False):
         CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, 'resultadoCamposAvulsos')        
@@ -220,18 +227,19 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
     eixoX = int(max(Lista_width_Final))   
     eixoY = int(sum(Lista_height_Final))
     new_img = Image.new("RGB", (eixoX, eixoY), (255,255,255)) 
-    new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg')
+    #new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg')
     contadorTXT += 1  
     soma_altura = 0 
     k = 0 
     
     for campo in Lista_campos_Final:
-        campo = Image.open(campo) 
+        campo = Image.fromarray(campo) 
         new_img.paste(campo, (0, soma_altura)) 
         soma_altura += Lista_height_Final[k]
         k += 1 
-    new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
-    texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por') 
+    #new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
+    #texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por')
+    texto = pytesseract.image_to_string(new_img, lang='por')  
     texto = texto.replace('|','').replace('[','').replace(']','').replace('(','').replace(')','').replace(';','').replace('ª','').replace('\x0C','')
     texto = "".join([s for s in texto.strip().splitlines(True) if s.strip()])    
   
@@ -245,7 +253,7 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
 # imagens.append(pagina2)
 
 
-imagens = convert_from_path('PACFinalV1.2Preenchida.pdf', 200, poppler_path=poppler_path, fmt='jpeg')
+imagens = convert_from_path('testeV1.3.pdf', 400, poppler_path=poppler_path, fmt='jpeg', grayscale=True)
 #sys.exit()
 contadorTXT=0
 # contadorArea = 0
@@ -264,8 +272,6 @@ valorMinimoAreaRelativa = 1.5
 contadorArea = 0
 criarUmTxtPorImagem = True 
 Leitura("area", Lista_Areas)    
-
-
     
 # crsor = conexao.cursor()
 # qery = (("""INSERT INTO TWISTER_CASH (ID_REGISTROCASH,
