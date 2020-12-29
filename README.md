@@ -106,10 +106,11 @@ from fuzzywuzzy import fuzz
 #     pwd = pswd)
 
 
-poppler_path = r'poppler-0.68.0\bin' 
-pytesseract.pytesseract.tesseract_cmd= r'Tesseract-OCR\tesseract.exe'
+poppler_path = r'C:\Users\andre\Downloads\Release-20.11.0\poppler-20.11.0\bin'
+pytesseract.pytesseract.tesseract_cmd= r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-ListaDeComparativos = ['Identificação do Representante Legal','Endereço','Média mensal apurada no período dos últimos doze 12 meses','Dados dos Representantes','Pessoas autorizadas a receber os talões de cheques, assinando o respectivo comprovante na entrega:','Dados Representantes IEI','Devedores solidários','Solicitação de alterações de Domicílio Bancário','Endereço instalação','Estabelecimento localizado em shopping?','Assinatura','DECLARAÇÃO - CONTAS MANTIDAS POR ENTIDADES FATCA/CRS','4 - Dados do Contrador Pessoa Física Residente Fiscal em outro país','DECLARAÇÃO DE EMISSÃO DE AÇÕES AO PORTADOR BEARER SHARES AO BANCO ITAÚ']
+
+ListaDeComparativos = ['Identificação do Representante Legal','Endereço','Média mensal apurada no período dos últimos doze 12 meses','Dados dos Representantes Itaú Empresas na Internet','Pessoas autorizadas a receber os talões de cheques, assinando o respectivo comprovante na entrega:','Dados Representantes IEI','Devedores solidários','Solicitação de alterações de Domicílio Bancário','Endereço instalação','Estabelecimento localizado em shopping?','Assinatura','DECLARAÇÃO - CONTAS MANTIDAS POR ENTIDADES FATCA/CRS','4 - Dados do Contrador Pessoa Física Residente Fiscal em outro país','DECLARAÇÃO DE EMISSÃO DE AÇÕES AO PORTADOR BEARER SHARES AO BANCO ITAÚ']
 def switch_TipoArea(indiceComparativo, ListaLinhasTxt):
     separador = ' '
     
@@ -142,7 +143,7 @@ def switch_TipoArea(indiceComparativo, ListaLinhasTxt):
                 EmailRepresentanteLegal = separador.join(linhaSplit)                      
             indexLinha += 1
 
-    if (indiceComparativo == 1): # Endereço
+    elif (indiceComparativo == 1): # Endereço
         ListaLinhasTxt.remove(ListaLinhasTxt[0])
         indexLinha = 0
         EnderecoOutroLEC = ''
@@ -193,6 +194,114 @@ def switch_TipoArea(indiceComparativo, ListaLinhasTxt):
 
             indexLinha += 1
 
+    elif (indiceComparativo == 2): # Média mensal apurada no período dos últimos doze 12 meses
+        ListaLinhasTxt.remove(ListaLinhasTxt[0])
+        ListaMeses = []
+        ListaAnos = []
+        ListaValores = []
+        Media = ''
+
+        ListaComparativoMeses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
+
+        for linha in ListaLinhasTxt:
+        
+            linhaSplit = linha.split()
+            k = 0
+            quebraLacoExterno = False
+            while (k<2): #Considera a presença da "Média" em uma das 2 primeiras palavras
+                if (fuzz.ratio('média', linhaSplit[k].lower()) >= 70):
+                    Media = linhaSplit[k + 1]
+                    quebraLacoExterno = True
+                    break;
+                k += 1    
+            if (quebraLacoExterno):
+                break;
+
+            linhaSplit.remove(linhaSplit[0]) # Remove a palavra "Mês"
+            i = 0
+            quebraLacoExterno2 = False
+            while (i<2): #considera a presença do mês em uma das 2 próximas palavras da lista
+                for comparativoMes in ListaComparativoMeses:
+                    if (fuzz.ratio(comparativoMes, linhaSplit[i].lower()) >= 70):
+                        ListaMeses.append(comparativoMes)
+                        linhaSplit = linhaSplit[i+2:] # ignora a proxima palavra, que seria "Ano:", para facilitar a captura de seu valor, por exemplo "2020"
+                        quebraLacoExterno2 = True
+                        break;
+                if (quebraLacoExterno2):
+                    break        
+                i += 1
+            j = 0    
+            while (j<2):    
+                if '20' in linhaSplit[j]:
+                    ListaAnos.append(linhaSplit[j])
+                    break;
+                j += 1
+            linhaSplit = ''.join(linhaSplit[j+1:])
+            ListaValores.append(linhaSplit.replace('R','').replace('$','')) 
+
+    elif (indiceComparativo == 3): # Dados dos Representantes Itaú Empresas na Internet
+        ListaLinhasTxt.remove(ListaLinhasTxt[0])
+        indexLinha = 0
+        TiposAlcada = ['Simples','Dupla', 'Simples & Dupla']
+        NomeRepresentanteIEI = ''
+        CpfRepresentanteIEI = ''
+        CelularRepresentanteIEI = ''
+        EmailRepresentanteIEI = ''
+        TipoAlcadaIEI = ''
+        ValorAlcadaSimplesIEI = ''
+        ValorAlcadaDuplaIEI = ''
+        for linha in ListaLinhasTxt:
+            linhaSplit = linha.split()
+            if (fuzz.ratio(linhaSplit[0].lower(), 'nome:') >= 70 and not NomeRepresentanteIEI):
+                linhaSplit.remove(linhaSplit[0])
+                NomeRepresentanteIEI = separador.join(linhaSplit)
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'cpf') >= 70 and not CpfRepresentanteIEI):
+                linhaSplit.remove(linhaSplit[0])
+                CpfRepresentanteIEI = separador.join(linhaSplit)   
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'celular') >= 70 and not CelularRepresentanteIEI):                
+                proximaLinhaSplit = ListaLinhasTxt[indexLinha + 1].split()
+                proximaLinhaSplit.remove(proximaLinhaSplit[0])
+                CelularRepresentanteIEI = separador.join(proximaLinhaSplit)                      
+            elif (fuzz.ratio(linhaSplit[0].lower(), 'e-mail:') >= 70 and not EmailRepresentanteIEI):
+                linhaSplit.remove(linhaSplit[0])           
+                EmailRepresentanteLegal = separador.join(linhaSplit)
+            elif (fuzz.ratio(' '.join(linhaSplit).lower(), 'Valor alçada dupla caso determinada') >= 70 and not ValorAlcadaDuplaIEI):                
+                proximaLinha = ListaLinhasTxt[indexLinha + 1].replace('R','').replace('$','')        
+                ValorAlcadaDuplaIEI = proximaLinha.replace('\n','')  
+            elif (fuzz.ratio(' '.join(linhaSplit).lower(), 'Valor alçada simples caso determinada') >= 70 and not ValorAlcadaSimplesIEI):                
+                proximaLinha = ListaLinhasTxt[indexLinha + 1].replace('R','').replace('$','')        
+                ValorAlcadaSimplesIEI = proximaLinha.replace('\n','')      
+            else:
+                for tipoAlcada in TiposAlcada:
+                    if(fuzz.ratio(linhaSplit[0].lower(), tipoAlcada) >= 70 and not TipoAlcadaIEI):
+                        linhaSplit.remove(linhaSplit[0])           
+                        TipoAlcadaIEI = tipoAlcada
+                        break                          
+            indexLinha += 1   
+
+    elif (indiceComparativo == 4): # Pessoas autorizadas a receber os talões de cheques, assinando o respectivo comprovante na entrega
+        ListaLinhasTxt.remove(ListaLinhasTxt[0])
+        indexPalavra = 0
+        ListaNomesAutorizados = []
+        ListaRGsAutorizados = []
+        for linha in ListaLinhasTxt:
+            trava = False
+            NomePessoa = ''
+            RGPessoa = ''
+            indexPalavra = 0
+            linhaSplit = linha.split()
+            linhaSplit.remove(linhaSplit[0])
+            for palavra in linhaSplit:
+                if (fuzz.ratio(palavra, 'Documento:') >= 70):
+                    trava = True 
+                if (not trava):     
+                    NomePessoa += palavra + ' '   
+                if ('RG' in palavra):
+                    RGPessoa = linhaSplit[indexPalavra+1:]
+                indexPalavra += 1  
+            ListaNomesAutorizados.append(NomePessoa)
+            ListaRGsAutorizados.append(RGPessoa)   
+            
 def Leitura(prefixo, imagens):
     global contadorArea
     global Lista_Areas
@@ -315,13 +424,13 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
         new_img.paste(campo, (0, soma_altura)) 
         soma_altura += Lista_height_Final[k]
         k += 1
-    if (prefixoResultado == 'resultadoArea3'):       
+    if (prefixoResultado == 'resultadoArea0'):       
         new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg')
         texto = pytesseract.image_to_string(cv2.imread('Salvos/CamposConcat'+str(contadorTXT)+'.jpg'), lang='por')
              
     #new_img.save('Salvos/CamposConcat'+str(contadorTXT)+'.jpg') 
     
-    texto = pytesseract.image_to_string(new_img, lang='por')  
+    texto = pytesseract.image_to_string(new_img, lang='por', config = '--psm 6 --oem 2')  
     texto = texto.replace('|','').replace('[','').replace(']','').replace('(','').replace(')','').replace(';','').replace('ª','').replace('\x0C','')
     texto = "".join([s for s in texto.strip().splitlines(True) if s.strip()])    
   
@@ -335,7 +444,7 @@ def CriaTXT(Lista_width_Final, Lista_height_Final, Lista_campos_Final, prefixoRe
 # imagens.append(pagina2)
 
 
-imagens = convert_from_path('PACFinalV1.3Preenchida(impressa).pdf', 400, poppler_path=poppler_path, fmt='jpeg')
+imagens = convert_from_path('testeV1.3.pdf', 400, poppler_path=poppler_path, fmt='jpeg')
 #sys.exit()
 contadorTXT=0
 # contadorArea = 0
@@ -355,12 +464,9 @@ contadorArea = 0
 criarUmTxtPorImagem = True 
 Leitura("area", Lista_Areas)    
 
+
 # while(contadorArea>0):
 #     ListaLinhasTxt = open('Salvos/resultadoArea'+ str(contadorArea) +'.txt').readlines()
-#     # str1 = "Ola, como vai?"
-#     # str2 = "O lá c0m o aãai*"
-#     # ratio = fuzz.ratio (str1.lower(), str2.lower())
-#     # print(ratio)
 #     for linha in ListaLinhasTxt:
 #         indiceComparativo = 0
 #         for comparativo in ListaDeComparativos:
@@ -369,8 +475,6 @@ Leitura("area", Lista_Areas)
 #                 switch_TipoArea(indiceComparativo, ListaLinhasTxt)
 #                 break;
 #             indiceComparativo += 1    
-
-
 #     contadorArea -= 1
 
 # cursor = conexao.cursor()
